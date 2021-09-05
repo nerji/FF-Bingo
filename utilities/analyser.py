@@ -27,7 +27,7 @@ Total:   {total}
 Living Liquid: {phase_format(1)}
 Brute Justice: {phase_format(2)}
 Alexander Prime: {phase_format(3)}
-Phase 4: {phase_format(4)}
+Perfect Alexander: {phase_format(4)}
 Active time: {active_time}
 Embolus wipes: {results["embolus_wipes"]}
 
