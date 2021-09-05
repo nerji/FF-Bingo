@@ -17,10 +17,13 @@ def analyse_tea_fight(log_id, api_key):
     total = results["total"]
 
     def phase_format(phase_id):
-        phase_count = results[f"phase{phase_id}"]
-        if phase_count == 0:
-            return phase_count
-        return f"{phase_count} ({phase_count/total*100:.1f}%)"
+        phase = results[f"phase{phase_id}"]
+        count = phase["count"]
+        time_in_phase = time.strftime('%H:%M:%S', time.gmtime(phase["time"]))
+        time_percentage = phase["time"]/results["active_time"] * 100
+        if count == 0:
+            return count
+        return f"{count} ({count/total*100:.1f}%) ({time_in_phase} {time_percentage:.1f}%)"
 
     message = f"""```
 Total:   {total}
@@ -60,10 +63,13 @@ def analyse_uwu_fight(log_id, api_key):
     total = results["total"]
 
     def phase_format(phase_id):
-        phase_count = results[f"phase{phase_id}"]
-        if phase_count == 0:
-            return phase_count
-        return f"{phase_count} ({phase_count/total*100:.1f}%)"
+        phase = results[f"phase{phase_id}"]
+        count = phase["count"]
+        time_in_phase = time.strftime('%H:%M:%S', time.gmtime(phase["time"]))
+        time_percentage = phase["time"]/results["active_time"] * 100
+        if count == 0:
+            return count
+        return f"{count} ({count/total*100:.1f}%) ({time_in_phase} {time_percentage:.1f}%)"
 
     message = f"""```
 Total:   {total}
@@ -133,8 +139,17 @@ def analyze_ultimate_fight(log_id, api_key, ultimate_id):
 
         active_time = active_time + fight["end_time"]/1000 - fight["start_time"]/1000
 
-    def get_phase_count(phase):
-        return len([fight for fight in ultimate_fights if fight['lastPhaseForPercentageDisplay'] == phase])
+    def get_phase_info(phase):
+        fights = [fight for fight in ultimate_fights if fight['lastPhaseForPercentageDisplay'] == phase]
+        count = len(fights)
+        time = 0
+        for fight in fights:
+            time = time + fight["end_time"]/1000 - fight["start_time"]/1000
+        return {
+            "count": count,
+            "time": time
+        }
+
     best_fight = min(ultimate_fights, key=lambda f: f['fightPercentage'])
     longest_fight = max(ultimate_fights, key=lambda f: f["end_time"] - f["start_time"])
 
@@ -148,11 +163,11 @@ def analyze_ultimate_fight(log_id, api_key, ultimate_id):
 
     results = {
         "total": len(ultimate_fights),
-        "phase1": get_phase_count(1),
-        "phase2": get_phase_count(2),
-        "phase3": get_phase_count(3),
-        "phase4": get_phase_count(4),
-        "phase5": get_phase_count(5),
+        "phase1": get_phase_info(1),
+        "phase2": get_phase_info(2),
+        "phase3": get_phase_info(3),
+        "phase4": get_phase_info(4),
+        "phase5": get_phase_info(5),
         "active_time": active_time,
         "best_fight": fight_summary(best_fight),
         "longest_fight": fight_summary(longest_fight),
